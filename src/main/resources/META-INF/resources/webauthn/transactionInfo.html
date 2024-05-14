@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>以太坊交易记录</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+<h1>以太坊交易记录</h1>
+<table id="transactionTable">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Coin</th>
+    <th>Operator Address</th>
+    <th>Operation Type</th>
+    <th>Hash</th>
+    <th>Amount</th>
+    <th>Status</th>
+    <th>Create Time</th>
+  </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<script>
+  function getTransactions() {
+    fetch('/api/transaction/list')
+            .then(response => response.json())
+            .then(data => {
+              if(data.code != 1){
+                throw new Error(data.msg)
+              }
+              const transactionTable = document.getElementById('transactionTable').getElementsByTagName('tbody')[0];
+              data.data.list.forEach(transaction => {
+                const row = document.createElement('tr');
+                const coinText = getCoinNameByEnum(transaction.coin);
+                const opText = getOpNameByEnum(transaction.operationType);
+                const statusText = getStatusNameByEnum(transaction.status);
+                row.innerHTML = `
+						<td>${transaction.id}</td>
+						<td>${coinText}</td>
+						<td>${transaction.operatorAddress}</td>
+						<td>${opText}</td>
+						<td>${transaction.hash}</td>
+						<td>${transaction.amount}</td>
+						<td>${statusText}</td>
+						<td>${transaction.createTime}</td>
+					`;
+                transactionTable.appendChild(row);
+              });
+            })
+            .catch(error => alert(error));
+  }
+
+  function getCoinNameByEnum(e){
+    let coinText;
+    switch (e) {
+      case 1:
+        coinText = 'ETH';
+        break;
+      default:
+        coinText = '未知币种';
+    }
+    return coinText;
+  }
+
+  function getOpNameByEnum(e){
+    let opText;
+    switch (e) {
+      case 1:
+        opText = '转账';
+        break;
+      default:
+        opText = '未知操作';
+    }
+    return opText;
+  }
+
+  function getStatusNameByEnum (e) {
+    let statusText;
+    switch (e) {
+      case 10:
+        statusText = '确认中';
+        break;
+      case 30:
+        statusText = '已确认';
+        break;
+      default:
+        statusText = '未知状态';
+    }
+    return statusText;
+  }
+
+  getTransactions();
+</script>
+</body>
+</html>

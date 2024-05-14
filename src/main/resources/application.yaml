@@ -1,0 +1,43 @@
+server:
+  port: 58089
+  address: 0.0.0.0
+logging:
+  level:
+    org.springframework.security: DEBUG
+spring:
+  mvc:
+    cors: false
+  thymeleaf:
+    cache: false
+    prefix: classpath:static/
+  #    prefix: classpath:/META-INF/resources/webauthnDemo/
+  jpa:
+    open-in-view: false
+  jackson:
+    default-property-inclusion: non_absent
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+#  h2:
+#    console:
+#      enabled: true
+  web:
+    resources:
+#      static-locations: classpath:/META-INF/resources/webauthnDemo
+#      static-locations: classpath:/META-INF/resources/webauthn
+      static-locations: classpath:static
+  profiles:
+    active: dev
+webauthn:
+  relying-party-id: localhost #airdrop.aspark.space #localhost
+  relying-party-name: Airdrop # Example Application
+  relying-party-icon: http://localhost:8080/assets/logo.png
+  relying-party-origins: http://localhost:58089,https://asn.aspark.space,http://localhost:8000,http://localhost:3000,chrome-extension://eibjaipogpeejolfbfkmcinienpihmnb
+#  endpoints:
+#    registrationStartPath: /api/registration/start
+#    registrationAddPath: /api/registration/add
+#    registrationFinishPath: /api/registration/finish
+#    assertionStartPath: /api/assertion/start
+#    assertionFinishPath: /api/assertion/finish
+
+
+

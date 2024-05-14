@@ -1,0 +1,27 @@
+package com.mih.webauthn.demo.constant;
+
+public interface ERC4337Const {
+    String EXECUTE = "execute";
+
+    String ENTRYPOINT_ADDRESS = "0x06098DD8123fA1Ed7ef645c7Bb4ac36180421Fad";
+
+    String TXSTATE_ADDRESS = "0x6d8f9672e23C54605bf088466F1De38B3f4d0B94";
+
+    String AAAS_CREATION_PAYMASTER_ADDRESS = "0x2Bde25433953A85150952aFEFC02755582E23f34";
+
+    String GET_USEROPERATION_HASH = "getUserOpHash";
+
+    String DEPLOY_WALLET = "createAccount";
+
+    String HANDLE_USEROPERATION = "handleOps";
+
+    String FACTORY_ADDRESS = "0x1DB53104E49233761769EC179880EE83fB383298";
+
+    String ACCOUNT_LIST_ADDRESS = "0x66152576eB29B3406384a4738B85F84E15CD1600";
+
+    int ACCOUNT_SALT = 123;
+
+    String GET_NONCE = "getNonce";
+
+    String OWNER = "owner";
+}

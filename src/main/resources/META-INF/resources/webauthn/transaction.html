@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>WebAuthn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="module" src="node_modules/webauthn-components/dist/webauthn-transaction.js"></script>
+</head>
+<body>
+<webauthn-login assertionStartUrl="api/sign/start" assertionFinishUrl="api/sign/finish"></webauthn-login>
+<script type="text/javascript">
+
+    let loginElement = document.querySelector('webauthn-login');
+
+    loginElement.addEventListener('login-started', e => {
+        console.log('login-started - event', e);
+    }, false);
+    loginElement.addEventListener('login-retrieved', e => {
+        console.log('login-retrieved - event', e);
+    }, false);
+    loginElement.addEventListener('login-finished', e => {
+        console.log('login-finished - event', e);
+        // window.location.href = '/';
+        alert("交易成功");
+    }, false);
+    loginElement.addEventListener('login-error', e => {
+        console.log('login-error - event', e);
+    }, false);
+
+    window.onload=function(){
+        loginElement.assertionStartUrl = 'api/transaction/start';
+        loginElement.assertionFinishUrl = 'api/transaction/finish';
+        loginElement.root.innerHTML = `<form part="form">
+<label for="coinSelect">Select Coin：</label>
+<select id="coinSelect" name="coinSelect">
+    <option value=1>ETH</option>
+    <option value=3>USDT</option>
+    <option value=5>BNB</option>
+<!-- 可以继续添加 -->
+</select>
+<br/><br/>
+<label part="label" for="transfer_address">Transfer Address</label>
+<input part="input" id="toAddress" type="text" name="toAddress" />
+<br/><br/>
+<label part="label" for="amount">Amount</label>
+<input part="input" id="amount" type="text" name="amount" />
+<br/><br/>
+<button part="button" type="submit">transfer out</button>
+</form>`
+        loginElement.connectedCallback();
+
+    }
+</script>
+
+</body>
+</html>
