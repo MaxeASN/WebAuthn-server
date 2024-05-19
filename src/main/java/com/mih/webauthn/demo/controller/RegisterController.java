@@ -1,18 +1,17 @@
 package com.mih.webauthn.demo.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mih.webauthn.demo.domain.Wallet;
 import com.mih.webauthn.demo.domain.dto.L1RpcParams;
 import com.mih.webauthn.demo.domain.dto.L1RpcResponse;
+import com.mih.webauthn.demo.domain.dto.RegistRpcParams;
 import com.mih.webauthn.demo.domain.vo.RegisterParams;
 import com.mih.webauthn.demo.exception.UserRegisterFailException;
 import com.mih.webauthn.demo.service.FaceDataService;
 import com.mih.webauthn.demo.service.FidoService;
 import com.mih.webauthn.demo.service.L1RpcService;
-import com.mih.webauthn.demo.utils.AESUtils;
-import com.mih.webauthn.demo.utils.CommonUtils;
-import com.mih.webauthn.demo.utils.ERC4337Utils;
-import com.mih.webauthn.demo.utils.ServletUtils;
+import com.mih.webauthn.demo.utils.*;
 import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.UserIdentity;
@@ -53,6 +52,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -84,6 +84,9 @@ public class RegisterController {
 
     @Autowired
     private WebAuthnOperation<RegistrationStartResponse, String> registrationOperation;
+
+    @Autowired
+    private static WebAuthnOperation<RegistrationStartResponse, String> registrationOperation1;
 
     @Autowired
     private ERC4337Utils erc4337Utils;
@@ -160,7 +163,8 @@ public class RegisterController {
 //            ByteArray id = UserIdentity.builder().name("122").displayName("122").id(new ByteArray(BytesUtil.longToBytes(121L))).build().getId();
 //            json = mapper.writeValueAsString(id);
             servletUtils.writeToResponse(response, json);
-//            cacheMap.put(registrationStartResponse.getRegistrationId(), registerParams);
+
+            cacheMap.put(registrationStartResponse.getRegistrationId(), registrationStartResponse);
         }  catch (UsernameAlreadyExistsException var10) {
             //servletUtils.writeBadRequestToResponse(response, new RegistrationStartResponse(RegistrationStartResponse.Status.USERNAME_TAKEN));
             servletUtils.writeBadRequestToResponse(response, Map.of("message", "The username already exists!"));
@@ -179,6 +183,8 @@ public class RegisterController {
             Map<String, String> map = finishStrategy.registrationFinish(body);
             String json = this.mapper.writeValueAsString(map);
             registrationId = body.getRegistrationId();
+            RegistrationStartResponse registrationStartResponse = cacheMap.get(registrationId, RegistrationStartResponse.class);
+
             //给用户生成一个以太坊私钥,并导出地址存进数据库
             byte[] credentialId = body.getCredential().getId().getBytes();
             JpaWebAuthnCredentials credential = webAuthnCredentialsRepository.findByCredentialId(credentialId).get(0);
@@ -195,7 +201,15 @@ public class RegisterController {
 //            }
             //调合约注册
             erc4337Utils.registerSoulAccount(wallet, credential.getPublicKeyCose());
-
+            HashMap<String, Object> paramMap = new HashMap<>();
+            paramMap.put("name",registrationStartResponse.getPublicKeyCredentialCreationOptions().getUser().getName());
+            JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(paramMap));
+            String jsonStr = ConnectUtil.connectPost("https://airdrop.aspark.space/api/user", jsonObject);
+            Map res = JSONObject.parseObject(jsonStr);
+            String msg = (String) res.get("msg");
+            if(!msg.equals("success")) {
+                throw new Exception();
+            }
             servletUtils.writeToResponse(response, json);
         } catch (Exception e) {
             log.error("注册失败：" + e.getMessage());

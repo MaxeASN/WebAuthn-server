@@ -19,4 +19,7 @@ public class RpcService {
                 .options(new Request.Options(3L, TimeUnit.SECONDS, 5L, TimeUnit.SECONDS, true))
                 .target(L1RpcService.class, "http://172.31.226.166:27890");
     }
+
 }
+
+
